@@ -1,16 +1,13 @@
-def num(n)
+def number(n)
     if n % 15 == 0
-        n = 'fizzbuzz'
+        'FizzBuzz'
     elsif n % 3 == 0
-        n = 'fizz'
+        'Fizz'
     elsif n % 5 == 0
-        n = 'buzz'
+        'Buzz'
+    else
+        n.to_s
     end
-    n.to_s
 end
 
-n = 0
-20.times do
-    n += 1
-    puts num(n)
-end
+20.times {|n| puts number(n + 1)}
