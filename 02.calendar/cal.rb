@@ -2,11 +2,11 @@
 
 require 'date'
 require 'optparse'
-present = Date.today
+today = Date.today
 
-params = ARGV.getopts("m:y:")
-month = params["m"]&.to_i || present.month
-year = params["y"]&.to_i || present.year
+opt = ARGV.getopts("m:y:")
+month = opt["m"]&.to_i || today.month
+year = opt["y"]&.to_i || today.year
 
 puts "#{month}月 #{year}".center(20) 
 
