@@ -10,7 +10,7 @@ shots = []
 scores.each do |s|
   if s == 'X'
     shots << 10
-    shots << 0 if shots.count <= 17 # ９フレームまで
+    shots << 0 if shots.count <= 17
   else
     shots << s.to_i
   end
