@@ -7,8 +7,8 @@ def entry(dir = Dir.pwd)
   entries.reject { |file| file[0] == '.' }
 end
 
-def output(col = 2)
-  row = entry.count.div(col)
+def output(col = 3)
+  row = (entry.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
   entry.each_with_index do |item, i|
@@ -21,7 +21,7 @@ def output(col = 2)
     line.each do |item|
       print item.to_s.ljust(WIDTH)
     end
-    puts "\n"
+    puts
   end
 end
 
