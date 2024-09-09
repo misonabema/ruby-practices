@@ -2,9 +2,8 @@
 
 WIDTH = 24
 
-def entry(dir = Dir.pwd)
-  entries = Dir.entries(dir).sort
-  entries.reject { |file| file[0] == '.' }
+def entry(file = '*')
+  Dir.glob(file).sort
 end
 
 def output(col = 3)
