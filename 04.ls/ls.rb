@@ -1,8 +1,14 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 WIDTH = 24
 
-def entry(file = '*')
+def entry
+  if ARGV.empty?
+    file = '*'
+  elsif ARGV.include?('-a')
+    file = '*', '.*', '..'
+  end
   Dir.glob(file).sort
 end
 
