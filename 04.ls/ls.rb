@@ -7,11 +7,8 @@ WIDTH = 24
 options = ARGV.getopts('a')
 
 def entry(options)
-  if options['a']
-    Dir.glob('*', File::FNM_DOTMATCH).sort
-  else
-    Dir.glob('*').sort
-  end
+  flags = options['a'] ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', flags).sort
 end
 
 def output(options, col = 3)
