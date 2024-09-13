@@ -1,16 +1,22 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
+require 'optparse'
 WIDTH = 24
 
-def entry(file = '*')
-  Dir.glob(file).sort
+options = ARGV.getopts('a')
+
+def entry(options)
+  flags = options['a'] ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', flags).sort
 end
 
-def output(col = 3)
-  row = (entry.count.to_f / col).ceil
+def output(options, col = 3)
+  entries = entry(options)
+  row = (entries.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
-  entry.each_with_index do |item, i|
+  entries.each_with_index do |item, i|
     entry_row = i % row
     entry_col = i / row
     align_entry[entry_row][entry_col] = item
@@ -24,4 +30,4 @@ def output(col = 3)
   end
 end
 
-output
+output(options)
