@@ -4,7 +4,7 @@
 require 'optparse'
 WIDTH = 24
 
-options = ARGV.getopts('a')
+options = ARGV.getopts('ar')
 
 def entry(options)
   flags = options['a'] ? File::FNM_DOTMATCH : 0
@@ -12,7 +12,7 @@ def entry(options)
 end
 
 def output(options, col = 3)
-  entries = entry(options)
+  entries = options['r'] ? entry(options).reverse : entry(options)
   row = (entries.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
