@@ -12,7 +12,8 @@ def entry(options)
 end
 
 def output(options, col = 3)
-  entries = options['r'] ? entry(options).reverse : entry(options)
+  entries = entry(options)
+  entries = entry(options).reverse if options['r']
   row = (entries.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
