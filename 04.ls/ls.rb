@@ -5,7 +5,7 @@ require 'optparse'
 require 'etc'
 WIDTH = 24
 
-options = ARGV.getopts('arl')
+options = ARGV.getopts('alr')
 
 def entry(options)
   flags = options['a'] ? File::FNM_DOTMATCH : 0
@@ -23,20 +23,17 @@ def file_type(status)
     socket?: 's'
   }
 
-  file_type_hash.each do |method, type|
-    return type if status.send(method)
-  end
-
-  '?'
+  file_type_hash.find { |method, _| status.send(method) }&.last || '?'
 end
 
 def permissions(status)
   (0..2).map do |i|
     shift = i * 3
-    r = ((status.mode >> (6 - shift)) & 0o4).positive? ? 'r' : '-'
-    w = ((status.mode >> (6 - shift)) & 0o2).positive? ? 'w' : '-'
-    x = ((status.mode >> (6 - shift)) & 0o1).positive? ? 'x' : '-'
-    r + w + x
+    bit_char_hash = { 0o4 => 'r', 0o2 => 'w', 0o1 => 'x' }
+
+    bit_char_hash.map do |bit, char|
+      ((status.mode >> (6 - shift)) & bit).positive? ? char : '-'
+    end.join
   end.join
 end
 
@@ -57,7 +54,7 @@ def blocks_total(entries)
   puts "total #{total_blocks}"
 end
 
-def l_option(entries)
+def list_long_format(entries)
   blocks_total(entries)
   entries.each do |file|
     status = File.lstat(file)
@@ -73,7 +70,7 @@ def l_option(entries)
   end
 end
 
-def others(entries, col)
+def list(entries, col)
   row = (entries.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
@@ -96,9 +93,9 @@ def output(options, col = 3)
   entries.reverse! if options['r']
 
   if options['l']
-    l_option(entries)
+    list_long_format(entries)
   else
-    others(entries, col)
+    list(entries, col)
   end
 end
 
