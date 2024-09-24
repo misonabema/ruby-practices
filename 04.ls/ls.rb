@@ -70,7 +70,7 @@ def list_long_format(entries)
   end
 end
 
-def list(entries, col)
+def list_short_format(entries, col)
   row = (entries.count.to_f / col).ceil
 
   align_entry = Array.new(row) { Array.new(col) }
@@ -95,7 +95,7 @@ def output(options, col = 3)
   if options['l']
     list_long_format(entries)
   else
-    list(entries, col)
+    list_short_format(entries, col)
   end
 end
 
