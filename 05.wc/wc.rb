@@ -4,48 +4,47 @@
 require 'optparse'
 
 def main
-  option = option_hash
-  file_info = read_file_info
+  option = set_option
+  file_info_list = read_file_info
 
-  output(option, file_info)
+  output(option, file_info_list)
 end
 
-def output(option, file_info)
-  total_counts = nil
+def output(option, file_info_list)
+  total_counts = { lines: 0, words: 0, chars: 0 }
 
-  file_info.each do |file|
-    counts = count_content(option, file[:file_content])
-    total_counts ||= Array.new(counts.size, 0)
-
-    print_counts(file[:file_name], counts)
-
-    counts.each_with_index do |count, index|
-      total_counts[index] += count
-    end
+  file_info_list.each do |file_info|
+    counts = count_content(file_info[:file_content], total_counts)
+    print_counts(file_info[:file_name], counts, option)
   end
 
-  print_counts('', total_counts, total: true) if ARGV.size > 1
+  print_counts('total', total_counts, option) if ARGV.size > 1
 end
 
-def count_content(option, file_content)
+def count_content(file_content, total_counts)
   counters = {
     lines: file_content.count("\n"),
     words: file_content.split(/\s+/).count,
     chars: file_content.bytesize
   }
-  option.values.any? ? counters.filter_map { |key, value| value if option[key] } : counters.values
+
+  counters.each do |key, value|
+    total_counts[key] += value
+  end
+
+  counters
 end
 
-def print_counts(file_name, counts, total: false)
-  format = counts.map { '%8d' }.join('')
+def print_counts(file_name, counts, option)
+  selected_counts = option.values.any? ? counts.filter_map { |key, value| value if option[key] } : counts.values
 
-  label = total ? 'total' : file_name
-  format += ' %s' unless label.empty?
+  format = selected_counts.map { '%8d' }.join('')
+  format += ' %s' unless file_name.empty?
 
-  printf("#{format}\n", *counts, label)
+  printf("#{format}\n", *selected_counts, file_name)
 end
 
-def option_hash
+def set_option
   options = { lines: false, words: false, chars: false }
   OptionParser.new do |opt|
     options.each_key do |key|
