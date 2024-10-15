@@ -4,47 +4,43 @@
 require 'optparse'
 
 def main
-  option = set_option
-  file_info_list = read_file_info
+  options = parse_options
+  file_info_list = build_file_info_list
 
-  output(option, file_info_list)
+  output(options, file_info_list)
 end
 
-def output(option, file_info_list)
+def output(options, file_info_list)
   total_counts = { lines: 0, words: 0, chars: 0 }
 
   file_info_list.each do |file_info|
-    counts = count_content(file_info[:file_content], total_counts)
-    print_counts(file_info[:file_name], counts, option)
+    counts = count_content(file_info[:file_content])
+    counts.each do |key, value|
+      total_counts[key] += value
+    end
+    print_counts(file_info[:file_name], counts, options)
   end
 
-  print_counts('total', total_counts, option) if ARGV.size > 1
+  print_counts('total', total_counts, options) if ARGV.size > 1
 end
 
-def count_content(file_content, total_counts)
-  counters = {
+def count_content(file_content)
+  {
     lines: file_content.count("\n"),
     words: file_content.split(/\s+/).count,
     chars: file_content.bytesize
   }
+end
 
-  counters.each do |key, value|
-    total_counts[key] += value
+def print_counts(file_name, counts, options)
+  columns = %i[lines words chars].filter_map do |key|
+    counts[key].to_s.rjust(8) if options[key]
   end
-
-  counters
+  columns << " #{file_name}" unless file_name.empty?
+  puts columns.join
 end
 
-def print_counts(file_name, counts, option)
-  selected_counts = option.values.any? ? counts.filter_map { |key, value| value if option[key] } : counts.values
-
-  format = selected_counts.map { '%8d' }.join('')
-  format += ' %s' unless file_name.empty?
-
-  printf("#{format}\n", *selected_counts, file_name)
-end
-
-def set_option
+def parse_options
   options = { lines: false, words: false, chars: false }
   OptionParser.new do |opt|
     options.each_key do |key|
@@ -52,10 +48,14 @@ def set_option
     end
   end.parse!
 
-  options
+  if options.values.none?
+    options.transform_values { true }
+  else
+    options
+  end
 end
 
-def read_file_info
+def build_file_info_list
   if ARGV.empty?
     [{ file_content: ARGF.read, file_name: '' }]
   else
